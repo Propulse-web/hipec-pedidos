@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HIPEC - Seguimiento de Pedidos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+        }
+
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header .emoji {
+            font-size: 40px;
+            margin-bottom: 1rem;
+        }
+
+        .login-header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .login-header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #1976d2;
+            box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+        }
+
+        .error-message {
+            background: #ffcdd2;
+            border: 1px solid #ef5350;
+            color: #c62828;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 13px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 10px;
+            background: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+
+        .btn-login:hover {
+            background: #1565c0;
+        }
+
+        .demo-users {
+            border-top: 1px solid #ddd;
+            padding-top: 1rem;
+            margin-top: 1rem;
+        }
+
+        .demo-users p {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .demo-users ul {
+            font-size: 12px;
+            color: #666;
+            margin-left: 20px;
+        }
+
+        .dashboard {
+            display: none;
+        }
+
+        .dashboard.active {
+            display: block;
+        }
+
+        .dashboard-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .dashboard-header {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .dashboard-header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .dashboard-header p {
+            font-size: 14px;
+            color: #666;
+            margin: 0;
+        }
+
+        .btn-logout {
+            padding: 8px 16px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .btn-logout:hover {
+            background: #f5f5f5;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .stat-card p:first-child {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .stat-card p:last-child {
+            font-size: 28px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .stat-card p:last-child.blue {
+            color: #1976d2;
+        }
+
+        .stat-card p:last-child.green {
+            color: #388e3c;
+        }
+
+        .tabla-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .tabla-scroll {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        thead {
+            background: #f5f5f5;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+        .cumplimiento-si {
+            background: #c8e6c9;
+            color: #2e7d32;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .cumplimiento-no {
+            background: #ffcdd2;
+            color: #c62828;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .remito {
+            color: #1976d2;
+            font-weight: 500;
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="login-container">
+    <div class="login-box">
+        <div class="login-header">
+            <div class="emoji">📦</div>
+            <h1>HIPEC</h1>
+            <p>Seguimiento de Pedidos</p>
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label>Usuario (Email)</label>
+                <input type="email" id="username" placeholder="Ingresa tu email" required>
+            </div>
+
+            <div class="form-group">
+                <label>Contraseña</label>
+                <input type="password" id="password" placeholder="Ingresa tu contraseña" required>
+            </div>
+
+            <div id="errorMessage" class="error-message"></div>
+
+            <button type="submit" class="btn-login">Iniciar sesión</button>
+        </form>
+
+        <div class="demo-users">
+            <p>Usuarios disponibles:</p>
+            <ul>
+                <li>ventas@terpack.com.ar</li>
+                <li>alberto@hipeccordoba.com.ar</li>
+                <li>javier@hipeccordoba.com.ar</li>
+                <li>pablo@hipeccordoba.com.ar</li>
+            </ul>
+            <p style="margin-top: 0.5rem;">Contraseña: 12345678</p>
+        </div>
+    </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="dashboard">
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <div>
+                <h1>📦 Mis Pedidos</h1>
+                <p>Bienvenido, <strong id="vendorName"></strong></p>
+            </div>
+            <button class="btn-logout" onclick="logout()">Cerrar sesión</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <p>Total de pedidos</p>
+                <p class="blue" id="totalPedidos">0</p>
+            </div>
+            <div class="stat-card">
+                <p>Cumplimiento</p>
+                <p class="green" id="cumplimiento">0%</p>
+            </div>
+        </div>
+
+        <div id="tablaContent" class="tabla-container">
+            <div class="loading">Cargando pedidos...</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const usuarios = {
+        'ventas@terpack.com.ar': { password: '12345678', nombre: 'Agustin Gomez' },
+        'alberto@hipeccordoba.com.ar': { password: '12345678', nombre: 'Alberto Cerri' },
+        'federico.castro@hipeccordoba.com.ar': { password: '12345678', nombre: 'Fede C' },
+        'federico@hipeccordoba.com.ar': { password: '12345678', nombre: 'Federico Ramacioni' },
+        'javier@hipeccordoba.com.ar': { password: '12345678', nombre: 'Javier' },
+        'karina@hipeccordoba.com.ar': { password: '12345678', nombre: 'Karina Saravia' },
+        'comunicaciones@hipeccordoba.com.ar': { password: '12345678', nombre: 'Licitación Juli' },
+        'melanie@hipeccordoba.com.ar': { password: '12345678', nombre: 'Melani Matzkin' },
+        'mijael@hipeccordoba.com.ar': { password: '12345678', nombre: 'Mijael Rassi' },
+        'pablo@hipeccordoba.com.ar': { password: '12345678', nombre: 'Pablo Bustos' },
+        'romina@hipeccordoba.com.ar': { password: '12345678', nombre: 'Romina Goyeneche' },
+        'yael@hipeccordoba.com.ar': { password: '12345678', nombre: 'Yael Buberman' },
+    };
+
+    let currentVendor = '';
+    let currentPedidos = [];
+
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const errorDiv = document.getElementById('errorMessage');
+
+        const user = usuarios[username];
+        
+        if (user && user.password === password) {
+            currentVendor = username;
+            showDashboard(user.nombre);
+            cargarDatos(username);
+            document.getElementById('loginForm').reset();
+            errorDiv.classList.remove('show');
+        } else {
+            errorDiv.textContent = 'Usuario o contraseña incorrectos';
+            errorDiv.classList.add('show');
+        }
+    });
+
+    function showDashboard(nombre) {
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('dashboard').classList.add('active');
+        document.getElementById('vendorName').textContent = nombre;
+    }
+
+    function logout() {
+        document.getElementById('dashboard').classList.remove('active');
+        document.getElementById('loginScreen').style.display = 'flex';
+        document.getElementById('loginForm').reset();
+        currentVendor = '';
+        currentPedidos = [];
+    }
+
+    function cargarDatos(vendedor) {
+        const nombreVendedor = usuarios[vendedor]?.nombre;
+        console.log('Buscando vendedor:', nombreVendedor);
+        
+        // URL CORRECTA con BASE DE PEDIDOS (con S)
+        const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRu1GrwOg8hXB7RP6SUyeT0b5ceMWsKZ-6axPjYZtbLRroo1XF4OqpomphsMTgug44vg-kOu_Fa9l3T/gviz/tq?tqx=out:json&sheet=BASE+DE+PEDIDOS';
+        
+        fetch(sheetUrl)
+            .then(response => response.text())
+            .then(data => {
+                try {
+                    const jsonMatch = data.match(/\)\]\'\n(.*)\n/s);
+                    if (jsonMatch) {
+                        const parsedData = JSON.parse(jsonMatch[1]);
+                        currentPedidos = [];
+                        
+                        if (parsedData.table && parsedData.table.rows) {
+                            console.log('Total de filas en Sheet:', parsedData.table.rows.length);
+                            
+                            parsedData.table.rows.forEach((row, idx) => {
+                                const cells = row.c;
+                                if (cells && cells.length > 4) {
+                                    const vendedorCell = cells[4]?.v;
+                                    
+                                    if (idx < 10) {
+                                        console.log(`Fila ${idx}: Vendedor="${vendedorCell}"`);
+                                    }
+                                    
+                                    if (vendedorCell && vendedorCell.trim().toLowerCase() === nombreVendedor.toLowerCase()) {
+                                        console.log('✓ Coincidencia encontrada:', vendedorCell);
+                                        currentPedidos.push({
+                                            nCL: cells[2]?.v || '',
+                                            cliente: cells[3]?.v || '',
+                                            fechaEntrega: cells[13]?.v || '',
+                                            cumplimiento: cells[16]?.v || '',
+                                            plazoTotal: cells[15]?.v || '',
+                                            remitoAsociado: cells[8]?.v || ''
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                        
+                        console.log('Total pedidos encontrados:', currentPedidos.length);
+                        mostrarTabla();
+                    }
+                } catch (error) {
+                    console.log('Error al parsear:', error);
+                    mostrarTabla();
+                }
+            })
+            .catch(error => {
+                console.log('Error en fetch:', error);
+                mostrarTabla();
+            });
+    }
+
+    function mostrarTabla() {
+        const container = document.getElementById('tablaContent');
+        
+        if (currentPedidos.length === 0) {
+            container.innerHTML = '<div class="empty-message">No hay pedidos disponibles</div>';
+            document.getElementById('totalPedidos').textContent = '0';
+            document.getElementById('cumplimiento').textContent = '0%';
+            return;
+        }
+
+        const cumplidos = currentPedidos.filter(p => p.cumplimiento === 'Si' || p.cumplimiento === 'TOTAL').length;
+        const porcentaje = Math.round((cumplidos / currentPedidos.length) * 100);
+
+        document.getElementById('totalPedidos').textContent = currentPedidos.length;
+        document.getElementById('cumplimiento').textContent = porcentaje + '%';
+
+        let html = `
+            <div class="tabla-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>N CL.</th>
+                            <th>Cliente</th>
+                            <th>Fecha Entrega</th>
+                            <th>Cumplimiento</th>
+                            <th>Plazo Total</th>
+                            <th>Remito</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+
+        currentPedidos.forEach(pedido => {
+            const cumplimientoClass = (pedido.cumplimiento === 'Si' || pedido.cumplimiento === 'TOTAL') ? 'cumplimiento-si' : 'cumplimiento-no';
+            html += `
+                <tr>
+                    <td><strong>${pedido.nCL}</strong></td>
+                    <td>${pedido.cliente}</td>
+                    <td>${pedido.fechaEntrega}</td>
+                    <td><span class="${cumplimientoClass}">${pedido.cumplimiento}</span></td>
+                    <td>${pedido.plazoTotal}</td>
+                    <td><span class="remito">${pedido.remitoAsociado}</span></td>
+                </tr>
+            `;
+        });
+
+        html += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+
+        container.innerHTML = html;
+    }
+</script>
+
+</body>
+</html>
