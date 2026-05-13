@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DEBUG - HIPEC</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #f5f5f5; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+        pre { background: white; padding: 15px; border-radius: 8px; overflow-x: auto; max-height: 600px; }
+    </style>
+</head>
+<body>
+
+<h1>🧪 DEBUG - Ver datos del Sheet</h1>
+<button onclick="cargar()">CLICK para cargar datos</button>
+
+<pre id="output">Esperando click...</pre>
+
+<script>
+    function cargar() {
+        const output = document.getElementById('output');
+        output.innerHTML = '⏳ Cargando...\n';
+        
+        const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRu1GrwOg8hXB7RP6SUyeT0b5ceMWsKZ-6axPjYZtbLRroo1XF4OqpomphsMTgug44vg-kOu_Fa9l3T/gviz/tq?tqx=out:json&sheet=BASE%20DE%20PEDIDOS';
+        
+        fetch(url)
+            .then(r => r.text())
+            .then(data => {
+                const match = data.match(/\)\]\'\n(.*)\n/s);
+                if (!match) {
+                    output.innerHTML = '❌ No se encontró JSON';
+                    return;
+                }
+                
+                const parsed = JSON.parse(match[1]);
+                output.innerHTML = '✅ JSON CARGADO\n\n';
+                
+                if (parsed.table && parsed.table.rows) {
+                    output.innerHTML += '📊 Total de filas: ' + parsed.table.rows.length + '\n\n';
+                    output.innerHTML += '🔍 PRIMERAS 10 FILAS:\n';
+                    output.innerHTML += '='.repeat(100) + '\n\n';
+                    
+                    for (let i = 0; i < Math.min(10, parsed.table.rows.length); i++) {
+                        const cells = parsed.table.rows[i].c;
+                        output.innerHTML += `FILA ${i}:\n`;
+                        output.innerHTML += `  C (idx 2): "${cells[2]?.v}"\n`;
+                        output.innerHTML += `  D (idx 3): "${cells[3]?.v}"\n`;
+                        output.innerHTML += `  E (idx 4): "${cells[4]?.v}" <-- VENDEDOR\n`;
+                        output.innerHTML += `  I (idx 8): "${cells[8]?.v}"\n`;
+                        output.innerHTML += `  N (idx 13): "${cells[13]?.v}"\n`;
+                        output.innerHTML += `  P (idx 15): "${cells[15]?.v}"\n`;
+                        output.innerHTML += `  Q (idx 16): "${cells[16]?.v}"\n`;
+                        output.innerHTML += '\n';
+                    }
+                    
+                    output.innerHTML += '\n' + '='.repeat(100) + '\n';
+                    output.innerHTML += '📋 VENDEDORES ÚNICOS:\n';
+                    
+                    const vendedores = new Set();
+                    parsed.table.rows.forEach(row => {
+                        const vendedor = row.c[4]?.v;
+                        if (vendedor) vendedores.add(vendedor);
+                    });
+                    
+                    Array.from(vendedores).forEach(v => {
+                        output.innerHTML += `  - "${v}"\n`;
+                    });
+                }
+            })
+            .catch(e => {
+                output.innerHTML = '❌ ERROR: ' + e.message;
+            });
+    }
+</script>
+
+</body>
+</html>
